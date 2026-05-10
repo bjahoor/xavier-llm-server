@@ -13,6 +13,11 @@ Models from **[Unsloth](https://huggingface.co/collections/unsloth/unsloth-dynam
 ## Setup
 
 ```bash
+git clone https://github.com/bjahoor/xavier-llm-server.git ~/xavier-llm-server
+cd ~/xavier-llm-server
+```
+
+```bash
 bash ./scripts/0-device-setup.sh    # upgrade system, install JetPack, jtop, Tailscale
 sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh
 sudo reboot                         # next boot is headless — connect via Tailscale SSH from here on
