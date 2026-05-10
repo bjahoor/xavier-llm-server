@@ -26,6 +26,7 @@ sudo systemctl restart nvfancontrol
 sudo apt install -y python3-pip
 sudo pip3 install -U jetson-stats
 sudo systemctl enable --now jtop
+sleep 10  # wait for jtop.service socket to be ready
 # enable jetson_clocks on every boot via jtop's own config (requires jtop.service running)
 sudo python3 -c "from jtop import jtop
 with jtop() as j:
