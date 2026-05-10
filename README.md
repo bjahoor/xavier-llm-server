@@ -14,10 +14,10 @@ Models from **[Unsloth](https://huggingface.co/collections/unsloth/unsloth-dynam
 
 ```bash
 git clone https://github.com/bjahoor/xavier-llm-server.git ~/xavier-llm-server
-cd ~/xavier-llm-server
 ```
 
 ```bash
+cd ~/xavier-llm-server
 bash ./scripts/0-device-setup.sh    # upgrade system, install JetPack, jtop, Tailscale
 sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh
 sudo reboot                         # next boot is headless — connect via Tailscale SSH from here on
@@ -31,6 +31,7 @@ curl -L -C - -O <huggingface-model-url>     # download the model file
 ```
 
 ```bash
+cd ~/xavier-llm-server
 sudo cp services/*.service /etc/systemd/system/      # install service files
 sudo systemctl daemon-reload                         # reload systemd
 sudo systemctl enable <service-name>                 # auto-start on boot
