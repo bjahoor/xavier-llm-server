@@ -40,6 +40,10 @@ sudo systemctl disable ssh  # takes effect after reboot — keeps current sessio
 # headless boot — no GUI, frees ~1 GB RAM
 sudo systemctl set-default multi-user.target
 
+# free up apt cache and orphaned packages now that all installs are done
+sudo apt clean
+sudo apt autoremove --purge -y
+
 echo
 echo "Next steps:"
 echo "  1. sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh"
