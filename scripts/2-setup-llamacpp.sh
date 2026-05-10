@@ -16,7 +16,7 @@ pip3 install --user --upgrade cmake
 export PATH="$HOME/.local/bin:$PATH"
 
 # source
-git clone https://github.com/ggml-org/llama.cpp.git
+git clone https://github.com/ggml-org/llama.cpp.git ~/llama.cpp
 
 # Xavier-specific build flags
 CMAKE_FLAGS=(
