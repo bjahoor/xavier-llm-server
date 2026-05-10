@@ -2,7 +2,7 @@
 
 ---
 
-This repo contains scripts and service files to configure a **Jetson AGX Xavier** to run as an LLM server using **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — the best inference engine option for sm_72 (Volta).
+This repo contains scripts and service files to configure a **Jetson AGX Xavier** to run as an LLM server using **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — the best inference engine option for sm_72 (Jetson Volta).
 
 The server exposes OpenAI-compatible endpoints (Anthropic-compatible endpoints also supported) for use with **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** and other compatible clients.
 
