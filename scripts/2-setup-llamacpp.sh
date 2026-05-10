@@ -30,6 +30,7 @@ CMAKE_FLAGS=(
   -DGGML_NATIVE=ON                    # optimize for this CPU specifically
   -DGGML_CPU_ARM_ARCH=armv8.2-a+fp16 # enable Carmel FP16 NEON (GCC 9 misses this)
   -DGGML_RPC=ON                       # build rpc-server for remote offload
+  -DGGML_RPC_RDMA=OFF                 # skip RDMA transport — Ubuntu 20.04 libibverbs is too old
   -DGGML_CUDA_GRAPHS=OFF              # CUDA Graphs need Ampere+; removes dead code
   -DGGML_LTO=ON                       # link-time optimization across translation units
   -DGGML_CUDA_FORCE_MMQ=ON            # force quantized matmul kernels at all batch sizes
