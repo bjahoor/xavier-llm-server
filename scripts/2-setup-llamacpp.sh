@@ -8,6 +8,7 @@ set -euo pipefail
 
 # build tools
 sudo apt update
+sudo apt full-upgrade -y
 sudo apt install -y build-essential
 
 # Ubuntu 20.04 ships CMake 3.16; llama.cpp requires 3.27+
