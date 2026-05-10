@@ -1,0 +1,45 @@
+[Unit]
+Description=llama-server — Qwen3.6-35B-A3B, 2 slots, 262K context native per slot
+# wait for microSD to be mounted before starting
+# reboot the device if the service fails
+After=mnt-microsd.mount
+OnFailure=systemd-reboot.service
+
+[Service]
+# failure goes straight to reboot
+User=user
+Restart=no
+
+Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+Environment=PARALLEL_SLOTS=2
+Environment=CONTEXT_PER_SLOT=262144
+Environment=MODEL=Qwen3.6-35B-A3B-UD-IQ4_NL_XL.gguf
+
+# free lingering RAM before load
+ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
+
+# -m             model path — set via MODEL env var
+# -fa            required for -ctv quantization; also reduces memory at large context
+# -ctk/v         KV cache at 8-bit — best quality without full precision
+# --jinja        use model's Jinja2 chat template — required for accurate tool calling
+# -dio           direct I/O — skips OS caching; model loads straight into tensor buffers
+# -c/-np         total context = CONTEXT_PER_SLOT × PARALLEL_SLOTS
+# --cache-ram 0  disable RAM cache — maximises available memory for slots
+# --host         listen on all network interfaces
+# --port         port for API requests
+ExecStart=/bin/sh -c 'exec /home/user/llama.cpp/build/bin/llama-server \
+  -m /mnt/microsd/models/$MODEL \
+  -fa on -ctk q8_0 -ctv q8_0 \
+  --jinja \
+  -dio \
+  -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
+  --cache-ram 0 \
+  --host 0.0.0.0 \
+  --port 8080'
+
+# allow 10 min to load model before failing
+TimeoutStartSec=600
+
+[Install]
+# start automatically on boot
+WantedBy=default.target
