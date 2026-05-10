@@ -86,3 +86,37 @@ GGML_CUDA_ENABLE_UNIFIED_MEMORY=1 llama-server \
 
 **MoE — CPU dispatch bound.** Each token passes through every layer, each with a router that picks which experts to run. CUDA 11.4 forces the CPU to handle dispatch after each routing decision — [Qwen3.6-35B-A3B](https://huggingface.co/unsloth/Qwen3.6-35B-A3B-GGUF/blob/main/Qwen3.6-35B-A3B-Q8_0.gguf)'s 40 layers means 40 CPU round trips per token, unavoidable.
 
+
+## Recovery
+
+Put the Xavier into Force Recovery mode, then from the host:
+
+```bash
+lsusb | grep 0955:7019                                                                        # expect: NVIDIA Corp. APX
+cd ~/nvidia/nvidia_sdk/JetPack_5.1.6_Linux_JETSON_AGX_XAVIER_TARGETS/Linux_for_Tegra
+sudo ./tools/l4t_flash_prerequisites.sh                                                       # one-time
+sudo ./tools/kernel_flash/l4t_initrd_flash.sh --initrd jetson-agx-xavier-devkit <partition>   # <partition> inert with --initrd (RAM boot); any value works, e.g. nvme0n1p1
+```
+
+```bash
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "fe80::1%eth0"  # only if ssh below fails with host-key warning, then retry ssh
+```
+
+```bash
+ssh root@fe80::1%eth0  # password: root
+```
+
+In the recovery shell:
+
+```bash
+mkdir -p /mnt/root
+lsblk -f  # find <rootfs-partition> (APP label) — eMMC: mmcblk0p1, microSD: mmcblk1p1, NVMe: nvme0n1p1
+mount /dev/<rootfs-partition> /mnt/root  # e.g. /dev/nvme0n1p1
+rm -f /mnt/root/etc/systemd/system/multi-user.target.wants/llama-cpp-*.service
+rm -f /mnt/root/etc/systemd/system/default.target.wants/llama-cpp-*.service
+sync
+umount /mnt/root
+reboot -f  # initrd has no systemd, plain `reboot` may hang
+# then immediately unplug USB-C to prevent re-entering recovery mode
+```
+
