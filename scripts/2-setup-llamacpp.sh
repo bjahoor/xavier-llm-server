@@ -47,5 +47,10 @@ if ! grep -q 'llama.cpp/build/bin' ~/.bashrc; then
   echo 'export PATH=$HOME/llama.cpp/build/bin:$PATH' >> ~/.bashrc
 fi
 export PATH="$HOME/llama.cpp/build/bin:$PATH"
+
+# free up apt cache and orphaned packages now that all installs are done
+sudo apt clean
+sudo apt autoremove --purge -y
+
 echo
 llama-server --version
