@@ -1,12 +1,9 @@
 [Unit]
 Description=llama-server — Qwen3.6-35B-A3B, 2 slots, 262K context native per slot
 # wait for microSD to be mounted before starting
-# reboot the device if the service fails
 After=mnt-microsd.mount
-OnFailure=systemd-reboot.service
 
 [Service]
-# failure goes straight to reboot
 User=user
 Restart=no
 
@@ -14,6 +11,9 @@ Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
 Environment=PARALLEL_SLOTS=2
 Environment=CONTEXT_PER_SLOT=262144
 Environment=MODEL=Qwen3.6-35B-A3B-UD-IQ4_NL_XL.gguf
+
+# skip silently if model or binary missing — never fail at boot
+ExecCondition=/bin/sh -c 'test -f /mnt/microsd/models/$MODEL && test -x /home/user/llama.cpp/build/bin/llama-server'
 
 # free lingering RAM before load
 ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
