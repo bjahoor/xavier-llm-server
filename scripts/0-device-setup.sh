@@ -8,16 +8,14 @@ set -euo pipefail
 
 # system update
 sudo apt update
-sudo apt upgrade -y
 sudo apt full-upgrade -y
 
 # JetPack — CUDA, cuDNN, TensorRT, and Jetson drivers
 sudo apt install -y nvidia-jetpack
 
-# max performance clocks, persistent across reboots
+# max performance clocks for current session
 sudo nvpmodel -m 0
 sudo jetson_clocks
-sudo systemctl enable jetson_clocks
 
 # cool fan profile — temperature-responsive, persists across reboots
 sudo sed -i 's/^\s*FAN_DEFAULT_PROFILE .*/\tFAN_DEFAULT_PROFILE cool/' /etc/nvfancontrol.conf  # set cool profile in nvfancontrol conf
@@ -28,11 +26,15 @@ sudo systemctl restart nvfancontrol
 sudo apt install -y python3-pip
 sudo pip3 install -U jetson-stats
 sudo systemctl enable --now jtop
+# enable jetson_clocks on every boot via jtop's own config (requires jtop.service running)
+sudo python3 -c "from jtop import jtop
+with jtop() as j:
+    j.jetson_clocks.boot = True"
 
 # Tailscale — remote access; disable OpenSSH in favour of Tailscale SSH
 sudo apt install -y curl
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo systemctl disable --now ssh
+sudo systemctl disable ssh  # takes effect after reboot — keeps current session alive
 
 # headless boot — no GUI, frees ~1 GB RAM
 sudo systemctl set-default multi-user.target
