@@ -21,7 +21,15 @@ cd ~/xavier-llm-server
 bash ./scripts/0-device-setup.sh    # upgrade system, install JetPack, jtop, Tailscale
 sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh
 sudo reboot                         # next boot is headless — connect via Tailscale SSH from here on
+```
+
+```bash
+cd ~/xavier-llm-server
 bash ./scripts/1-mount-microsd.sh   # optional: microSD card for models (recommended)
+```
+
+```bash
+cd ~/xavier-llm-server
 bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (~45 min); re-run to update
 ```
 
@@ -39,22 +47,6 @@ sudo systemctl enable <service-name>                 # auto-start on boot
 sudo reboot                                          # starts llama-server
 ```
 
-## Manual Run
-
-```bash
-sudo sh -c 'sync && echo 3 > /proc/sys/vm/drop_caches'  # clear page cache before loading any model
-```
-
-```bash
-GGML_CUDA_ENABLE_UNIFIED_MEMORY=1 llama-server \
-  -m /mnt/microsd/models/<model>.gguf \
-  -fa on -ctk q8_0 -ctv q8_0 \
-  --jinja -dio \
-  -c <total-ctx> -np <slots> \
-  --cache-ram 0 \
-  --host 0.0.0.0 --port 8080
-```
-
 ## Hermes Agent Usage
 
 Add to `~/.hermes/config.yaml` ([custom providers](https://hermes-agent.nousresearch.com/docs/integrations/providers#custom--self-hosted-llm-providers), [llama-server setup](https://hermes-agent.nousresearch.com/docs/integrations/providers#llamacpp--llama-server--cpu--metal-inference)):
@@ -69,6 +61,22 @@ custom_providers:
 - name: <display-name>
   base_url: http://<xavier-ip>:8080/v1/
   model: <model-filename>.gguf
+```
+
+### Manual Run
+
+```bash
+sudo sh -c 'sync && echo 3 > /proc/sys/vm/drop_caches'  # clear page cache before loading any model
+```
+
+```bash
+GGML_CUDA_ENABLE_UNIFIED_MEMORY=1 llama-server \
+  -m /mnt/microsd/models/<model>.gguf \  # model path
+  -fa on -ctk q8_0 -ctv q8_0 \           # flash attn + kv cache quantization
+  --jinja -dio \                         # model's chat template + skips OS cache
+  -c <total-ctx> -np <slots> \           # total ctx = per-slot × slots
+  --cache-ram 0 \                        # disable server prompt cache (saves RAM)
+  --host 0.0.0.0 --port 8080             # bind all interfaces
 ```
 
 
