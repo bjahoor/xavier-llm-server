@@ -22,7 +22,7 @@ bash ./scripts/0-device-setup.sh    # upgrade system, install JetPack, jtop, Tai
 sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh
 sudo reboot                         # next boot is headless — connect via Tailscale SSH from here on
 bash ./scripts/1-mount-microsd.sh   # optional: microSD card for models (recommended)
-bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (~45 min)
+bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (~45 min); re-run to update
 ```
 
 ```bash
