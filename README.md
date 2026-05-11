@@ -18,19 +18,20 @@ git clone https://github.com/bjahoor/xavier-llm-server.git ~/xavier-llm-server
 
 ```bash
 cd ~/xavier-llm-server
-bash ./scripts/0-device-setup.sh    # upgrade system, install JetPack, jtop, Tailscale
+sudo bash ./scripts/0-device-setup.sh    # upgrade system, install JetPack, jtop, Tailscale
 sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh
 sudo reboot                         # next boot is headless — connect via Tailscale SSH from here on
 ```
 
 ```bash
 cd ~/xavier-llm-server
-bash ./scripts/1-mount-microsd.sh   # optional: microSD card for models (recommended)
+sudo bash ./scripts/1-mount-microsd.sh   # optional: microSD card for models (recommended)
 ```
 
 ```bash
 cd ~/xavier-llm-server
-bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (~45 min); re-run to update
+sudo bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (~45 min); re-run to update
+source /etc/profile.d/llama-cpp.sh       # load PATH for current shell
 ```
 
 ```bash
