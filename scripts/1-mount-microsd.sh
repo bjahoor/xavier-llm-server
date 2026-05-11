@@ -2,9 +2,14 @@
 # 1-mount-microsd.sh — format and mount microSD at /mnt/microsd
 #
 # Usage:
-#   bash ./scripts/1-mount-microsd.sh
+#   sudo bash ./scripts/1-mount-microsd.sh
 
 set -euo pipefail
+
+# require sudo
+(( EUID == 0 )) || { echo "ERROR: run with sudo" >&2; exit 1; }
+# capture the original user (set by sudo); abort if missing so files don't end up root-owned
+TARGET_USER="${SUDO_USER:?run via sudo, not as root directly}"
 
 # abort if no SD card detected
 if [ ! -b /dev/mmcblk1 ]; then
@@ -23,8 +28,8 @@ if ! grep -q '/mnt/microsd' /etc/fstab; then
 fi
 
 sudo mount -a
-sudo chown "$USER:$USER" /mnt/microsd
-mkdir -p /mnt/microsd/models  # model storage directory
+sudo chown "$TARGET_USER:$TARGET_USER" /mnt/microsd
+sudo -u "$TARGET_USER" mkdir -p /mnt/microsd/models  # model storage directory, owned by user
 
 echo
 df -h /mnt/microsd

@@ -2,9 +2,12 @@
 # 0-device-setup.sh — system upgrade, JetPack, jtop, Tailscale
 #
 # Usage:
-#   bash ./scripts/0-device-setup.sh
+#   sudo bash ./scripts/0-device-setup.sh
 
 set -euo pipefail
+
+# require sudo
+(( EUID == 0 )) || { echo "ERROR: run with sudo" >&2; exit 1; }
 
 # system update
 sudo apt update
