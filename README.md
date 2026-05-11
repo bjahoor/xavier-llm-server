@@ -12,9 +12,13 @@ Models from **[Unsloth](https://huggingface.co/collections/unsloth/unsloth-dynam
 
 ## Setup
 
+### 1. Clone repo
+
 ```bash
 git clone https://github.com/bjahoor/xavier-llm-server.git ~/xavier-llm-server
 ```
+
+### 2. Base install + setup
 
 ```bash
 cd ~/xavier-llm-server
@@ -23,10 +27,14 @@ sudo tailscale up --auth-key=<your-auth-key> --hostname=<your-hostname> --ssh
 sudo reboot                         # next boot is headless — connect via Tailscale SSH from here on
 ```
 
+### 3. microSD storage (optional)
+
 ```bash
 cd ~/xavier-llm-server
 sudo bash ./scripts/1-mount-microsd.sh   # optional: microSD card for models (recommended)
 ```
+
+### 4. Build llama.cpp
 
 ```bash
 cd ~/xavier-llm-server
@@ -34,10 +42,14 @@ sudo bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cp
 source /etc/profile.d/llama-cpp.sh       # load PATH for current shell
 ```
 
+### 5. Download a model
+
 ```bash
 cd /mnt/microsd/models                      # navigate to model storage
 curl -L -C - -O <huggingface-model-url>     # download the model file
 ```
+
+### 6. Install services
 
 ```bash
 cd ~/xavier-llm-server
@@ -92,6 +104,8 @@ GGML_CUDA_ENABLE_UNIFIED_MEMORY=1 llama-server \
 
 Put the Xavier into Force Recovery mode, then from the host:
 
+### 1. Boot recovery initrd
+
 ```bash
 lsusb | grep 0955:7019                                                                        # expect: NVIDIA Corp. APX
 cd ~/nvidia/nvidia_sdk/JetPack_5.1.6_Linux_JETSON_AGX_XAVIER_TARGETS/Linux_for_Tegra
@@ -99,9 +113,13 @@ sudo ./tools/l4t_flash_prerequisites.sh                                         
 sudo ./tools/kernel_flash/l4t_initrd_flash.sh --initrd jetson-agx-xavier-devkit <partition>   # <partition> inert with --initrd (RAM boot); any value works, e.g. nvme0n1p1
 ```
 
+### 2. Clear stale host key (only if needed)
+
 ```bash
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "fe80::1%eth0"  # only if ssh below fails with host-key warning, then retry ssh
 ```
+
+### 3. SSH into recovery shell
 
 ```bash
 ssh root@fe80::1%eth0  # password: root
@@ -110,14 +128,13 @@ ssh root@fe80::1%eth0  # password: root
 In the recovery shell:
 
 ```bash
-mkdir -p /mnt/root
-lsblk -f  # find <rootfs-partition> (APP label) — eMMC: mmcblk0p1, microSD: mmcblk1p1, NVMe: nvme0n1p1
-mount /dev/<rootfs-partition> /mnt/root  # e.g. /dev/nvme0n1p1
-rm -f /mnt/root/etc/systemd/system/multi-user.target.wants/llama-cpp-*.service
-rm -f /mnt/root/etc/systemd/system/default.target.wants/llama-cpp-*.service
-sync
-umount /mnt/root
-reboot -f  # initrd has no systemd, plain `reboot` may hang
+mkdir -p /mnt/root                                                              # create mountpoint for the rootfs
+lsblk -f                                                                        # find <rootfs-partition> (APP label) — eMMC: mmcblk0p1, microSD: mmcblk1p1, NVMe: nvme0n1p1
+mount /dev/<rootfs-partition> /mnt/root                                         # mount rootfs read-write; e.g. /dev/nvme0n1p1
+rm -f /mnt/root/etc/systemd/system/*.wants/llama-cpp-*.service                  # disable services under any target.wants/ dir
+sync                                                                            # flush writes to disk
+umount /mnt/root                                                                # unmount cleanly
+reboot -f                                                                       # initrd has no systemd, plain `reboot` may hang
 # then immediately unplug USB-C to prevent re-entering recovery mode
 ```
 
