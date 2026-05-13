@@ -6,7 +6,13 @@ This repo contains scripts and service files to configure a **Jetson AGX Xavier*
 
 The server exposes OpenAI-compatible endpoints (Anthropic-compatible endpoints also supported) for use with **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** and other compatible clients.
 
-Models from **[Unsloth](https://huggingface.co/collections/unsloth/unsloth-dynamic-20-quants)** on HuggingFace are the best source for GGUF quants.
+Recommended sources for GGUF quants on HuggingFace:
+
+- [ggml-org](https://huggingface.co/ggml-org/collections)
+- [Unsloth AI](https://huggingface.co/unsloth)
+- [LM Studio Community](https://huggingface.co/lmstudio-community)
+- [Bartowski](https://huggingface.co/bartowski)
+- [team mradermacher](https://huggingface.co/mradermacher/models)
 
 ---
 
