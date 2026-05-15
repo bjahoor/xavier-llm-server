@@ -12,7 +12,7 @@ The server exposes OpenAI-compatible and Anthropic-compatible endpoints for use 
 
 Recommended sources for GGUF quants on HuggingFace:
 
-- [ggml-org](https://huggingface.co/ggml-org/collections)
+- [ggml-org](https://huggingface.co/ggml-org)
 - [Unsloth AI](https://huggingface.co/unsloth)
 - [LM Studio Community](https://huggingface.co/lmstudio-community)
 - [Bartowski](https://huggingface.co/bartowski)
