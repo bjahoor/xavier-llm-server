@@ -6,9 +6,11 @@ Both Claude Code and the [Claude Agent SDK](https://code.claude.com/docs/en/agen
 {
   "env": {
     "ANTHROPIC_BASE_URL": "http://<xavier-ip>:8080",
-    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "<per-slot-ctx>"
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "<per-slot-ctx>",
+    "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
   }
 }
 ```
 
-`CLAUDE_CODE_AUTO_COMPACT_WINDOW` is required — without it, Claude Code assumes a 200K window and overshoots the server's per-slot cap.
+- `CLAUDE_CODE_AUTO_COMPACT_WINDOW` — required. Defaults to 200K and overshoots the per-slot cap. Set to `131072` (128K) so compaction fires at ~95% = ~124K, well before the slot ceiling. Lower for shorter but more frequent stalls.
+- `CLAUDE_CODE_ATTRIBUTION_HEADER` — must be `"0"`. Default adds a per-request fingerprint that busts the prefix-cache match and forces full re-prefill **every turn**.
