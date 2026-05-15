@@ -80,3 +80,9 @@ sudo reboot                                          # starts llama-server
 - [Performance Constraints](docs/performance-constraints.md) — hardware ceilings that bound any workload
 - [Recovery](docs/recovery.md) — recover the device via Force Recovery mode
 
+---
+
+## Temporary workarounds
+
+- [Hybrid Model Cache Patch](docs/hybrid-cache-patch.md)
+
