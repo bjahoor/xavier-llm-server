@@ -2,9 +2,13 @@
 
 ---
 
-This repo contains scripts and service files to configure a **Jetson AGX Xavier** to run as an LLM server using **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — the best inference engine option for sm_72 (Jetson Volta).
+This repo contains scripts and service files to configure a **Jetson AGX Xavier** (tested on JetPack 5.1.6 — L4T R35.6.4) to run as an LLM server using **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — the best inference engine option for sm_72 (Jetson Volta).
 
-The server exposes OpenAI-compatible endpoints (Anthropic-compatible endpoints also supported) for use with **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** and other compatible clients.
+The server exposes OpenAI-compatible and Anthropic-compatible endpoints for use with compatible clients:
+
+- [Hermes Agent](https://hermes-agent.nousresearch.com/)
+- [OpenClaw](https://openclaw.ai/)
+- [Claude Code / Agent SDK](https://www.claude.com/product/claude-code)
 
 Recommended sources for GGUF quants on HuggingFace:
 
@@ -16,7 +20,7 @@ Recommended sources for GGUF quants on HuggingFace:
 
 ---
 
-## Setup
+## Setup and Install
 
 ### 1. Clone repo
 
@@ -62,85 +66,17 @@ cd ~/xavier-llm-server
 sudo cp services/*.service /etc/systemd/system/      # install service files
 sudo systemctl daemon-reload                         # reload systemd
 sudo systemctl enable <service-name>                 # auto-start on boot
-# sudo systemctl enable llama-cpp-qwen3.5-9b
+# sudo systemctl enable llama-cpp-nemotron-12b
 sudo reboot                                          # starts llama-server
 ```
 
-## Hermes Agent Usage
+---
 
-Add to `~/.hermes/config.yaml` ([custom providers](https://hermes-agent.nousresearch.com/docs/integrations/providers#custom--self-hosted-llm-providers), [llama-server setup](https://hermes-agent.nousresearch.com/docs/integrations/providers#llamacpp--llama-server--cpu--metal-inference)):
+## Docs
 
-```yaml
-model:
-  default: <model-filename>.gguf
-  provider: custom
-  base_url: http://<xavier-ip>:8080/v1/
-
-custom_providers:
-- name: <display-name>
-  base_url: http://<xavier-ip>:8080/v1/
-  model: <model-filename>.gguf
-```
-
-### Manual Run
-
-```bash
-sudo sh -c 'sync && echo 3 > /proc/sys/vm/drop_caches'  # clear page cache before loading any model
-```
-
-```bash
-GGML_CUDA_ENABLE_UNIFIED_MEMORY=1 llama-server \
-  -m /mnt/microsd/models/<model>.gguf \  # model path
-  -fa on -ctk q8_0 -ctv q8_0 \           # flash attn + kv cache quantization
-  --jinja -dio \                         # model's chat template + skips OS cache
-  -c <total-ctx> -np <slots> \           # total ctx = per-slot × slots
-  --cache-ram 0 \                        # disable server prompt cache (saves RAM)
-  --host 0.0.0.0 --port 8080             # bind all interfaces
-```
-
-
-## Performance Bottlenecks
-
-**Dense — memory bandwidth bound.** Every token reads all weights from unified memory into the GPU cores. Throughput ceiling = bandwidth ÷ model size — [Qwen3.6-27B Q8_0](https://huggingface.co/unsloth/Qwen3.6-27B-GGUF/blob/main/Qwen3.6-27B-Q8_0.gguf) at 28.6 GB on Xavier's [136.5 GB/s](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-xavier-series/) = **~4.8 tok/s ceiling**.
-
-**MoE — CPU dispatch bound.** Each token passes through every layer, each with a router that picks which experts to run. CUDA 11.4 forces the CPU to handle dispatch after each routing decision — [Qwen3.6-35B-A3B](https://huggingface.co/unsloth/Qwen3.6-35B-A3B-GGUF/blob/main/Qwen3.6-35B-A3B-Q8_0.gguf)'s 40 layers means 40 CPU round trips per token, unavoidable.
-
-
-## Recovery
-
-Put the Xavier into Force Recovery mode, then from the host:
-
-### 1. Boot recovery initrd
-
-```bash
-lsusb | grep 0955:7019                                                                        # expect: NVIDIA Corp. APX
-cd ~/nvidia/nvidia_sdk/JetPack_5.1.6_Linux_JETSON_AGX_XAVIER_TARGETS/Linux_for_Tegra
-sudo ./tools/l4t_flash_prerequisites.sh                                                       # one-time
-sudo ./tools/kernel_flash/l4t_initrd_flash.sh --initrd jetson-agx-xavier-devkit <partition>   # <partition> inert with --initrd (RAM boot); any value works, e.g. nvme0n1p1
-```
-
-### 2. Clear stale host key (only if needed)
-
-```bash
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "fe80::1%eth0"  # only if ssh below fails with host-key warning, then retry ssh
-```
-
-### 3. SSH into recovery shell
-
-```bash
-ssh root@fe80::1%eth0  # password: root
-```
-
-In the recovery shell:
-
-```bash
-mkdir -p /mnt/root                                                              # create mountpoint for the rootfs
-lsblk -f                                                                        # find <rootfs-partition> (APP label) — eMMC: mmcblk0p1, microSD: mmcblk1p1, NVMe: nvme0n1p1
-mount /dev/<rootfs-partition> /mnt/root                                         # mount rootfs read-write; e.g. /dev/nvme0n1p1
-rm -f /mnt/root/etc/systemd/system/*.wants/llama-cpp-*.service                  # disable services under any target.wants/ dir
-sync                                                                            # flush writes to disk
-umount /mnt/root                                                                # unmount cleanly
-reboot -f                                                                       # initrd has no systemd, plain `reboot` may hang
-# then immediately unplug USB-C to prevent re-entering recovery mode
-```
+- [Manual Run](docs/manual-run.md) — run llama-server directly without a service
+- [Hermes Agent Usage](docs/hermes-agent.md) — wire up Nous Research's Hermes Agent
+- [Claude Code / Agent SDK Usage](docs/claude-code.md) — point Claude Code and the Agent SDK at the server
+- [Performance Constraints](docs/performance-constraints.md) — hardware ceilings that bound any workload
+- [Recovery](docs/recovery.md) — recover the device via Force Recovery mode
 
