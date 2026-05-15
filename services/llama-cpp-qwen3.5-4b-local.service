@@ -15,7 +15,7 @@ Restart=no
 
 Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
 Environment=PARALLEL_SLOTS=6
-Environment=CONTEXT_PER_SLOT=128000
+Environment=CONTEXT_PER_SLOT=131072
 Environment=MODEL=Qwen3.5-4B-UD-Q6_K_XL.gguf
 
 # free lingering RAM before load

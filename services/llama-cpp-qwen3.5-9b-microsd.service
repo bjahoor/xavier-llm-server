@@ -1,0 +1,50 @@
+[Unit]
+Description=llama-server — Qwen3.5-9B, 8 slots, 128K context per slot
+
+# wait for storage + GPU readiness
+Wants=systemd-udev-settle.service
+After=mnt-microsd.mount systemd-udev-settle.service
+
+# fail loudly if model or binary missing
+AssertPathExists=/mnt/microsd/models/Qwen3.5-9B-UD-Q6_K_XL.gguf
+AssertFileIsExecutable=/home/user/llama.cpp/build/bin/llama-server
+
+[Service]
+User=user
+Restart=no
+
+Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+Environment=PARALLEL_SLOTS=8
+Environment=CONTEXT_PER_SLOT=131072
+Environment=MODEL=Qwen3.5-9B-UD-Q6_K_XL.gguf
+
+# free lingering RAM before load
+ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
+
+# -m             model path — set via MODEL env var
+# -fa            required for -ctv quantization; also reduces memory at large context
+# -ctk/v         KV cache at 8-bit — best quality without full precision
+# --jinja        use model's Jinja2 chat template — required for accurate tool calling
+# -dio           direct I/O — skips OS caching; model loads straight into tensor buffers
+# -c/-np         total context = CONTEXT_PER_SLOT × PARALLEL_SLOTS
+# -ctxcp         max checkpoints per slot
+# --cache-ram 0  disable RAM cache — maximises available memory for slots
+# --host         listen on all network interfaces
+# --port         port for API requests
+ExecStart=/bin/sh -c 'exec /home/user/llama.cpp/build/bin/llama-server \
+  -m /mnt/microsd/models/$MODEL \
+  -fa on -ctk q8_0 -ctv q8_0 \
+  --jinja \
+  -dio \
+  -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
+  -ctxcp 1 \
+  --cache-ram 0 \
+  --host 0.0.0.0 \
+  --port 8080'
+
+# allow 10 min to load model before failing
+TimeoutStartSec=600
+
+[Install]
+# start automatically on boot
+WantedBy=default.target
