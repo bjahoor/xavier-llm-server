@@ -27,6 +27,7 @@ ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
 # --jinja        use model's Jinja2 chat template — required for accurate tool calling
 # -dio           direct I/O — skips OS caching; model loads straight into tensor buffers
 # -c/-np         total context = CONTEXT_PER_SLOT × PARALLEL_SLOTS
+# -ctxcp         max checkpoints per slot
 # --cache-ram 0  disable RAM cache — maximises available memory for slots
 # --host         listen on all network interfaces
 # --port         port for API requests
@@ -36,6 +37,7 @@ ExecStart=/bin/sh -c 'exec /home/user/llama.cpp/build/bin/llama-server \
   --jinja \
   -dio \
   -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
+  -ctxcp 1 \
   --cache-ram 0 \
   --host 0.0.0.0 \
   --port 8080'

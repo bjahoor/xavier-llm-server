@@ -1,5 +1,5 @@
 [Unit]
-Description=llama-server — NVIDIA Nemotron-Elastic-12B-A2B, 14 slots, 128K context per slot
+Description=llama-server — NVIDIA Nemotron-Elastic-12B-A2B, 12 slots, 128K context per slot
 
 # wait for storage + GPU readiness
 Wants=systemd-udev-settle.service
@@ -14,7 +14,7 @@ User=user
 Restart=no
 
 Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
-Environment=PARALLEL_SLOTS=14
+Environment=PARALLEL_SLOTS=12
 Environment=CONTEXT_PER_SLOT=131072
 Environment=MODEL=NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
 
@@ -23,20 +23,24 @@ ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
 
 # -m             model path — set via MODEL env var
 # -fa            flash attention — required for long-context efficiency
+# -ctk/v         KV cache type (default f16; q8_0 reduces memory but slows prefill)
 # --jinja        use model's Jinja2 chat template — required for accurate tool calling
 # -dio           direct I/O — skips OS caching; model loads straight into tensor buffers
 # -c/-np         total context = CONTEXT_PER_SLOT × PARALLEL_SLOTS
 # -b/-ub         prefill batch / chunk size — tuned for faster prompt processing
+# -ctxcp         max checkpoints per slot
 # --cache-ram 0  disable RAM cache — maximises available memory for slots
 # --host         listen on all network interfaces
 # --port         port for API requests
 ExecStart=/bin/sh -c 'exec /home/user/llama.cpp/build/bin/llama-server \
   -m /mnt/microsd/models/$MODEL \
   -fa on \
+  -ctk f16 -ctv f16 \
   --jinja \
   -dio \
   -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
   -b 4096 -ub 2048 \
+  -ctxcp 1 \
   --cache-ram 0 \
   --host 0.0.0.0 \
   --port 8080'
