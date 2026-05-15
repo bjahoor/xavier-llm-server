@@ -16,6 +16,7 @@ Cherry-pick the patch onto your existing llama.cpp clone and rebuild:
 
 ```bash
 cd ~/llama.cpp
+git checkout master
 git fetch https://github.com/bjahoor/llama.cpp.git fix/hybrid-cache-restore
 git cherry-pick FETCH_HEAD
 cmake --build build -j
