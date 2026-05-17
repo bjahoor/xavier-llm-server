@@ -4,11 +4,11 @@
 
 This repo contains scripts and service files to configure a **Jetson AGX Xavier** (tested on JetPack 5.1.6 — L4T R35.6.4) to run as an LLM server using **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — the best inference engine option for sm_72 (Jetson Volta).
 
-The server exposes OpenAI-compatible and Anthropic-compatible endpoints for use with compatible clients:
+The server exposes OpenAI-compatible and Anthropic-compatible endpoints for use with compatible clients such as:
 
 - [Hermes Agent](https://hermes-agent.nousresearch.com/)
 - [OpenClaw](https://openclaw.ai/)
-- [Claude Code / Agent SDK](https://www.claude.com/product/claude-code)
+- [Claude Code](https://www.claude.com/product/claude-code)
 
 Recommended sources for GGUF quants on HuggingFace:
 
@@ -75,7 +75,7 @@ sudo reboot                                          # starts llama-server
 ## Docs
 
 - [Manual Run](docs/manual-run.md) — run llama-server directly without a service
-- [Hermes Agent Usage](docs/hermes-agent.md) — wire up Nous Research's Hermes Agent
-- [Claude Code / Agent SDK Usage](docs/claude-code.md) — point Claude Code and the Agent SDK at the server
+- [Hermes Agent Usage](docs/hermes-agent.md) — point Nous Research's Hermes Agent at the server
+- [Claude Code Usage](docs/claude-code.md) — point Claude Code at the server
 - [Performance Constraints](docs/performance-constraints.md) — hardware ceilings that bound any workload
 - [Recovery](docs/recovery.md) — recover the device via Force Recovery mode
