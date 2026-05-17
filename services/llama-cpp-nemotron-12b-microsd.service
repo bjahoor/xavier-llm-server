@@ -1,9 +1,9 @@
 [Unit]
 Description=llama-server — NVIDIA Nemotron-Elastic-12B-A2B, 8 slots, 256K context per slot
 
-# wait for storage + GPU readiness
-Wants=systemd-udev-settle.service
-After=mnt-microsd.mount systemd-udev-settle.service
+# wait for storage and GPU power gating (CUDA needs nvpmodel)
+After=mnt-microsd.mount nvpmodel.service
+Requires=mnt-microsd.mount nvpmodel.service
 
 # fail loudly if model or binary missing
 AssertPathExists=/mnt/microsd/models/NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
