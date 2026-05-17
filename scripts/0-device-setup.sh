@@ -40,6 +40,9 @@ sudo apt install -y curl
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo systemctl disable ssh  # takes effect after reboot — keeps current session alive
 
+# nvargus-daemon — camera daemon, unused on a headless inference box
+sudo systemctl disable nvargus-daemon
+
 # headless boot — no GUI, frees ~1 GB RAM
 sudo systemctl set-default multi-user.target
 
