@@ -61,4 +61,5 @@ echo
 sudo -u "$TARGET_USER" -H bash -lc 'llama-server --version'
 
 echo
-echo "Run: source /etc/profile.d/llama-cpp.sh"
+echo "To add llama.cpp to PATH in this shell, run:"
+echo "  source /etc/profile.d/llama-cpp.sh"
