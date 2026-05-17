@@ -46,7 +46,7 @@ CMAKE_FLAGS=(
 
 # configure and build (~45 min) — run as user so build artifacts are user-owned; sudo strips PATH so set it explicitly to find user-installed cmake
 # rm -rf "$TARGET_HOME/llama.cpp/build"  # uncomment to force a clean rebuild
-USER_PATH="$TARGET_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+USER_PATH="$TARGET_HOME/.local/bin:/usr/local/cuda/bin:/usr/local/bin:/usr/bin:/bin"
 sudo -u "$TARGET_USER" -H env PATH="$USER_PATH" cmake -S "$TARGET_HOME/llama.cpp" -B "$TARGET_HOME/llama.cpp/build" "${CMAKE_FLAGS[@]}"
 sudo -u "$TARGET_USER" -H env PATH="$USER_PATH" cmake --build "$TARGET_HOME/llama.cpp/build" -j$(nproc)
 
