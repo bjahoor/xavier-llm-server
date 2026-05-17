@@ -1,5 +1,5 @@
 [Unit]
-Description=llama-server — NVIDIA Nemotron-Elastic-12B-A2B, 14 slots, 128K context per slot
+Description=llama-server — NVIDIA Nemotron-Elastic-12B-A2B, 8 slots, 256K context per slot
 
 # wait for storage + GPU readiness
 Wants=systemd-udev-settle.service
@@ -14,8 +14,8 @@ User=user
 Restart=no
 
 Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
-Environment=PARALLEL_SLOTS=14
-Environment=CONTEXT_PER_SLOT=131072
+Environment=PARALLEL_SLOTS=8
+Environment=CONTEXT_PER_SLOT=262144
 Environment=MODEL=NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
 
 # free lingering RAM before load
