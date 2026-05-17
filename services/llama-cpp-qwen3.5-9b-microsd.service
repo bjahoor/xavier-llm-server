@@ -1,9 +1,9 @@
 [Unit]
 Description=llama-server — Qwen3.5-9B, 8 slots, 128K context per slot
 
-# wait for storage + GPU readiness
-Wants=systemd-udev-settle.service
-After=mnt-microsd.mount systemd-udev-settle.service
+# wait for storage and GPU power gating (CUDA needs nvpmodel)
+After=mnt-microsd.mount nvpmodel.service
+Requires=mnt-microsd.mount nvpmodel.service
 
 # fail loudly if model or binary missing
 AssertPathExists=/mnt/microsd/models/Qwen3.5-9B-UD-Q6_K_XL.gguf

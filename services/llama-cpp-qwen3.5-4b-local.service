@@ -1,9 +1,9 @@
 [Unit]
 Description=llama-server — Qwen3.5-4B, 6 slots, 128K context per slot
 
-# wait for storage + GPU readiness
-Wants=systemd-udev-settle.service
-After=local-fs.target systemd-udev-settle.service
+# wait for storage and GPU power gating (CUDA needs nvpmodel)
+After=local-fs.target nvpmodel.service
+Requires=nvpmodel.service
 
 # fail loudly if model or binary missing
 AssertPathExists=/home/user/models/Qwen3.5-4B-UD-Q6_K_XL.gguf
