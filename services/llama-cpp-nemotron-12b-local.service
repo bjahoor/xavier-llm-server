@@ -23,7 +23,7 @@ ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
 
 # -m             model path — set via MODEL env var
 # -fa            flash attention — required for long-context efficiency
-# -ctk/v         KV cache type (default f16; q8_0 reduces memory but slows prefill)
+# -ctk/v         KV cache at 8-bit — best quality without full precision
 # --jinja        use model's Jinja2 chat template — required for accurate tool calling
 # -dio           direct I/O — skips OS caching; model loads straight into tensor buffers
 # -c/-np         total context = CONTEXT_PER_SLOT × PARALLEL_SLOTS
@@ -35,7 +35,7 @@ ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
 ExecStart=/bin/sh -c 'exec /home/user/llama.cpp/build/bin/llama-server \
   -m /home/user/models/$MODEL \
   -fa on \
-  -ctk f16 -ctv f16 \
+  -ctk q8_0 -ctv q8_0 \
   --jinja \
   -dio \
   -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
