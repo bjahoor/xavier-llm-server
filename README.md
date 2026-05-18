@@ -56,7 +56,7 @@ source /etc/profile.d/llama-cpp.sh       # load PATH for current shell
 
 ```bash
 cd /mnt/microsd/models                      # navigate to model storage
-curl -L -C - -O <huggingface-model-url>     # download the model file
+curl -L -C - -O <huggingface-download-link>     # download the model file
 ```
 
 ### 6. Install services
