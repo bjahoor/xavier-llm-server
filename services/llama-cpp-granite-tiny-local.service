@@ -1,0 +1,57 @@
+[Unit]
+Description=llama-server — Granite 4.0 H-Tiny, 8 slots, 128K context per slot
+Documentation=https://huggingface.co/unsloth/granite-4.0-h-tiny-GGUF
+
+# wait for storage and GPU power gating (CUDA needs nvpmodel)
+After=local-fs.target nvpmodel.service
+Requires=nvpmodel.service
+
+# fail loudly if model or binary missing
+AssertPathExists=%h/models/granite-4.0-h-tiny-UD-Q6_K_XL.gguf
+AssertFileIsExecutable=%h/llama.cpp/build/bin/llama-server
+
+[Service]
+User=user
+Restart=no
+
+Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+Environment=PARALLEL_SLOTS=8
+Environment=CONTEXT_PER_SLOT=131072
+Environment=MODEL=granite-4.0-h-tiny-UD-Q6_K_XL.gguf
+Environment=MODEL_DIR=%h/models
+
+# free lingering RAM before load
+ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
+
+# -m             model path — set via MODEL env var
+# -fa            flash attention — required for long-context efficiency
+# -ctk/v         KV cache at 8-bit — best quality without full precision
+# --jinja        use model's Jinja2 chat template — required for accurate tool calling
+# -dio           direct I/O — skips OS caching; model loads straight into tensor buffers
+# -fit off       no auto-tuning
+# -c/-np         total context = CONTEXT_PER_SLOT × PARALLEL_SLOTS
+# -b/-ub         prefill batch / chunk size — tuned for faster prompt processing
+# -ctxcp         max checkpoints per slot
+# --cache-ram 0  disable RAM cache — maximises available memory for slots
+# --host         listen on all network interfaces
+# --port         port for API requests
+ExecStart=/bin/sh -c 'exec %h/llama.cpp/build/bin/llama-server \
+  -m $MODEL_DIR/$MODEL \
+  -fa on \
+  -ctk q8_0 -ctv q8_0 \
+  --jinja \
+  -dio \
+  -fit off \
+  -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
+  -b 4096 -ub 2048 \
+  -ctxcp 1 \
+  --cache-ram 0 \
+  --host 0.0.0.0 \
+  --port 8080'
+
+# allow 10 min to load model before failing
+TimeoutStartSec=600
+
+[Install]
+# start automatically on boot
+WantedBy=default.target

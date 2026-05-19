@@ -66,7 +66,7 @@ cd ~/xavier-llm-server
 sudo cp services/*.service /etc/systemd/system/      # install service files
 sudo systemctl daemon-reload                         # reload systemd
 sudo systemctl enable <service-name>                 # auto-start on boot
-# sudo systemctl enable llama-cpp-nemotron-12b-microsd
+# sudo systemctl enable llama-cpp-nemotron-elastic-12b-microsd
 sudo reboot                                          # starts llama-server
 ```
 
