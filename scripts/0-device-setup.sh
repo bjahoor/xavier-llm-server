@@ -28,6 +28,7 @@ sudo systemctl restart nvfancontrol
 # jtop — system monitor for Jetson (fan, clocks, power mode)
 sudo apt install -y python3-pip
 sudo pip3 install -U jetson-stats
+sudo usermod -aG jtop "$SUDO_USER"  # add invoking user to jtop group
 sudo systemctl enable --now jtop
 sleep 10  # wait for jtop.service socket to be ready
 # enable jetson_clocks on every boot via jtop's own config (requires jtop.service running)
