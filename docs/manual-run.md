@@ -10,6 +10,7 @@ GGML_CUDA_ENABLE_UNIFIED_MEMORY=1 llama-server \
   -fa on \                               # flash attention
   -ctk <ktype> -ctv <vtype> \            # KV cache type (e.g. f16, q8_0)
   --jinja -dio \                         # model's chat template + skips OS cache
+  -fit off \                             # no auto-tuning
   -c <total-ctx> -np <slots> \           # total ctx = per-slot × slots
   -b 4096 -ub 2048 \                     # prefill batch / chunk size
   -ctxcp 1 \                             # max checkpoints per slot
