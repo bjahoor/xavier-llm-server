@@ -9,24 +9,32 @@ model:
 
 ```yaml
 auxiliary:
+  vision:
+    provider: auto
   web_extract:
-    provider: qwen
+    provider: granite
   compression:
-    provider: qwen
+    provider: granite
   session_search:
-    provider: qwen
+    provider: granite
   skills_hub:
-    provider: qwen
+    provider: granite
   approval:
-    provider: qwen
+    provider: granite
   mcp:
-    provider: qwen
+    provider: nemotron
   title_generation:
-    provider: qwen
+    provider: granite
   triage_specifier:
-    provider: qwen
+    provider: nemotron
+  kanban_decomposer:
+    provider: nemotron
+  profile_describer:
+    provider: granite
   curator:
-    provider: qwen
+    provider: nemotron
+  goal_judge:
+    provider: nemotron
 ```
 
 ```yaml
@@ -34,7 +42,7 @@ custom_providers:
 - name: nemotron
   base_url: http://<xavier-ip>:8080/v1/
   model: NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
-- name: qwen
+- name: granite
   base_url: http://<xavier-ip>:8080/v1/
-  model: Qwen3.5-4B-UD-Q6_K_XL.gguf
+  model: granite-4.0-h-tiny-UD-Q6_K_XL.gguf
 ```
