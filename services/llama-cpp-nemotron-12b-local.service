@@ -1,13 +1,14 @@
 [Unit]
 Description=llama-server — NVIDIA Nemotron-Elastic-12B-A2B, 2 slots, 256K context per slot
+Documentation=https://huggingface.co/mradermacher/NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B-i1-GGUF
 
 # wait for storage and GPU power gating (CUDA needs nvpmodel)
 After=local-fs.target nvpmodel.service
 Requires=nvpmodel.service
 
 # fail loudly if model or binary missing
-AssertPathExists=/home/user/models/NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
-AssertFileIsExecutable=/home/user/llama.cpp/build/bin/llama-server
+AssertPathExists=%h/models/NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
+AssertFileIsExecutable=%h/llama.cpp/build/bin/llama-server
 
 [Service]
 User=user
@@ -17,6 +18,7 @@ Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
 Environment=PARALLEL_SLOTS=2
 Environment=CONTEXT_PER_SLOT=262144
 Environment=MODEL=NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
+Environment=MODEL_DIR=%h/models
 
 # free lingering RAM before load
 ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
@@ -32,8 +34,8 @@ ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
 # --cache-ram 0  disable RAM cache — maximises available memory for slots
 # --host         listen on all network interfaces
 # --port         port for API requests
-ExecStart=/bin/sh -c 'exec /home/user/llama.cpp/build/bin/llama-server \
-  -m /home/user/models/$MODEL \
+ExecStart=/bin/sh -c 'exec %h/llama.cpp/build/bin/llama-server \
+  -m $MODEL_DIR/$MODEL \
   -fa on \
   -ctk q8_0 -ctv q8_0 \
   --jinja \
