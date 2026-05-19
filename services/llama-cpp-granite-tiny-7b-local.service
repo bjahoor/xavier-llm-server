@@ -7,8 +7,8 @@ After=local-fs.target nvpmodel.service
 Requires=nvpmodel.service
 
 # fail loudly if model or binary missing
-AssertPathExists=%h/models/granite-4.0-h-tiny-UD-Q6_K_XL.gguf
-AssertFileIsExecutable=%h/llama.cpp/build/bin/llama-server
+AssertPathExists=/home/user/models/granite-4.0-h-tiny-UD-Q6_K_XL.gguf
+AssertFileIsExecutable=/home/user/llama.cpp/build/bin/llama-server
 
 [Service]
 User=user
@@ -18,7 +18,7 @@ Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
 Environment=PARALLEL_SLOTS=8
 Environment=CONTEXT_PER_SLOT=131072
 Environment=MODEL=granite-4.0-h-tiny-UD-Q6_K_XL.gguf
-Environment=MODEL_DIR=%h/models
+Environment=MODEL_DIR=/home/user/models
 
 # free lingering RAM before load
 ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
@@ -35,7 +35,7 @@ ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
 # --cache-ram 0  disable RAM cache — maximises available memory for slots
 # --host         listen on all network interfaces
 # --port         port for API requests
-ExecStart=/bin/sh -c 'exec %h/llama.cpp/build/bin/llama-server \
+ExecStart=/bin/sh -c 'exec "$HOME"/llama.cpp/build/bin/llama-server \
   -m $MODEL_DIR/$MODEL \
   -fa on \
   -ctk q8_0 -ctv q8_0 \
