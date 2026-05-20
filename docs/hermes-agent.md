@@ -14,7 +14,7 @@ auxiliary:
   web_extract:
     provider: granite
   compression:
-    provider: granite
+    provider: nemotron
   session_search:
     provider: granite
   skills_hub:
