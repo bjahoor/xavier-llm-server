@@ -1,5 +1,5 @@
 [Unit]
-Description=llama-server — Granite 4.0 H-Tiny, 8 slots, 128K context per slot
+Description=llama-server — Granite 4.0 H-Tiny, 4 slots, 128K context per slot
 Documentation=https://huggingface.co/unsloth/granite-4.0-h-tiny-GGUF
 
 # wait for storage and GPU power gating (CUDA needs nvpmodel)
@@ -15,7 +15,7 @@ User=user
 Restart=no
 
 Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
-Environment=PARALLEL_SLOTS=8
+Environment=PARALLEL_SLOTS=4
 Environment=CONTEXT_PER_SLOT=131072
 Environment=MODEL=granite-4.0-h-tiny-UD-Q6_K_XL.gguf
 Environment=MODEL_DIR=/home/user/models
