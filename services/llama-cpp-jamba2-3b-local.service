@@ -1,0 +1,46 @@
+[Unit]
+Description=llama-server — AI21 Jamba2-3B, 16 slots, 128K context per slot
+Documentation=https://huggingface.co/bartowski/ai21labs_AI21-Jamba2-3B-GGUF
+
+# wait for storage and GPU power gating (CUDA needs nvpmodel)
+After=local-fs.target nvpmodel.service
+Requires=nvpmodel.service
+
+# fail loudly if model or binary missing
+AssertPathExists=/home/user/models/ai21labs_AI21-Jamba2-3B-Q6_K_L.gguf
+AssertFileIsExecutable=/home/user/llama.cpp/build/bin/llama-server
+
+[Service]
+User=user
+Restart=no
+
+Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+Environment=PARALLEL_SLOTS=16
+Environment=CONTEXT_PER_SLOT=131072
+Environment=MODEL=ai21labs_AI21-Jamba2-3B-Q6_K_L.gguf
+Environment=MODEL_DIR=/home/user/models
+
+# free lingering RAM before load
+ExecStartPre=+/bin/sh -c "sync && echo 3 > /proc/sys/vm/drop_caches"
+
+# start the model server
+ExecStart=/bin/sh -c 'exec "$HOME"/llama.cpp/build/bin/llama-server \
+  -m $MODEL_DIR/$MODEL \
+  -fa on \
+  -ctk q8_0 -ctv q8_0 \
+  --jinja \
+  -dio \
+  -fit off \
+  -c $((CONTEXT_PER_SLOT * PARALLEL_SLOTS)) -np $PARALLEL_SLOTS \
+  -b 4096 -ub 512 \
+  -ctxcp 1 \
+  --cache-ram 0 \
+  --host 0.0.0.0 \
+  --port 8080'
+
+# allow 10 min to load model before failing
+TimeoutStartSec=600
+
+[Install]
+# start automatically on boot
+WantedBy=default.target
