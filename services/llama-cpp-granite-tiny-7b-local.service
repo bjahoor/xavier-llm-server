@@ -15,7 +15,7 @@ User=user
 Restart=no
 
 Environment=GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
-Environment=PARALLEL_SLOTS=6
+Environment=PARALLEL_SLOTS=4
 Environment=CONTEXT_PER_SLOT=131072
 Environment=MODEL=granite-4.0-h-tiny-UD-Q6_K_XL.gguf
 Environment=MODEL_DIR=/home/user/models
