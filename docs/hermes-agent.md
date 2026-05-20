@@ -12,25 +12,25 @@ auxiliary:
   vision:
     provider: auto
   web_extract:
-    provider: granite
+    provider: jamba
   compression:
-    provider: granite
+    provider: jamba
   session_search:
-    provider: granite
+    provider: jamba
   skills_hub:
-    provider: granite
+    provider: jamba
   approval:
-    provider: granite
+    provider: jamba
   mcp:
     provider: nemotron
   title_generation:
-    provider: granite
+    provider: jamba
   triage_specifier:
     provider: nemotron
   kanban_decomposer:
     provider: nemotron
   profile_describer:
-    provider: granite
+    provider: jamba
   curator:
     provider: nemotron
   goal_judge:
@@ -42,7 +42,7 @@ custom_providers:
 - name: nemotron
   base_url: http://<xavier-ip>:8080/v1/
   model: NVIDIA-Nemotron-Labs-3-Elastic-12B-A2B.i1-Q5_K_M.gguf
-- name: granite
+- name: jamba
   base_url: http://<xavier-ip>:8080/v1/
-  model: granite-4.0-h-tiny-UD-Q6_K_XL.gguf
+  model: ai21labs_AI21-Jamba2-3B-Q6_K_L.gguf
 ```
