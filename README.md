@@ -48,7 +48,7 @@ sudo bash ./scripts/1-mount-microsd.sh   # optional: microSD card for models (re
 
 ```bash
 cd ~/xavier-llm-server
-sudo bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (~45 min); re-run to update
+sudo bash ./scripts/2-setup-llamacpp.sh  # install build deps + compile llama.cpp (up to an hour); re-run to update
 source /etc/profile.d/llama-cpp.sh       # load PATH for current shell
 ```
 
@@ -68,6 +68,18 @@ sudo systemctl daemon-reload                         # reload systemd
 sudo systemctl enable <service-name>                 # auto-start on boot
 # sudo systemctl enable llama-cpp-nemotron-elastic-12b-microsd
 sudo reboot                                          # starts llama-server
+```
+
+---
+
+## Update llama.cpp
+
+Re-run the build script to pull the latest llama.cpp build and recompile, then restart the service to pick it up:
+
+```bash
+cd ~/xavier-llm-server
+sudo bash ./scripts/2-setup-llamacpp.sh   # git pull + rebuild
+sudo systemctl restart <service-name>     # e.g. llama-cpp-nemotron-elastic-12b-microsd
 ```
 
 ---
